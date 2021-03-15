@@ -27,6 +27,11 @@ ARG DEBIAN_BASE_IMAGE=buster-slim
 # Use Debian as base for the build
 FROM debian:${DEBIAN_BASE_IMAGE} AS builder
 
+RUN chmod 777 /tmp
+COPY sources.list /etc/apt/sources.list
+RUN echo "nameserver 114.114.114.114" > /etc/resolv.conf
+RUN apt update && apt install -y gettext && apt clean
+
 #
 # The Debian repository that should be preferred for dependencies (this will be
 # added to /etc/apt/sources.list if not already present)
@@ -109,8 +114,8 @@ ARG DEBIAN_RELEASE=buster-backports
 
 # Add repository for specified Debian release if not already present in
 # sources.list
-RUN grep " ${DEBIAN_RELEASE} " /etc/apt/sources.list || echo >> /etc/apt/sources.list \
-    "deb http://deb.debian.org/debian ${DEBIAN_RELEASE} main contrib non-free"
+# RUN grep " ${DEBIAN_RELEASE} " /etc/apt/sources.list || echo >> /etc/apt/sources.list \
+#    "deb http://deb.debian.org/debian ${DEBIAN_RELEASE} main contrib non-free"
 
 #
 # Base directory for installed build artifacts. See also the
@@ -140,6 +145,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Copy build artifacts into this stage
 COPY --from=builder ${PREFIX_DIR} ${PREFIX_DIR}
 
+COPY sources.list /etc/apt/sources.list
+
 # Bring runtime environment up to date and install runtime dependencies
 RUN apt-get update                                                                                       && \
     apt-get install -t ${DEBIAN_RELEASE} -y --no-install-recommends $RUNTIME_DEPENDENCIES                && \
@@ -163,12 +170,11 @@ RUN useradd --system --create-home --shell /usr/sbin/nologin --uid $UID --gid $G
 USER guacd
 
 # Expose the default listener port
-EXPOSE 4822
+# EXPOSE 4822
 
 # Start guacd, listening on port 0.0.0.0:4822
 #
 # Note the path here MUST correspond to the value specified in the 
 # PREFIX_DIR build argument.
 #
-CMD /usr/local/guacamole/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f
-
+# CMD /usr/local/guacamole/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f
