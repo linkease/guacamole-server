@@ -151,6 +151,7 @@ COPY sources.list /etc/apt/sources.list
 RUN apt-get update                                                                                       && \
     apt-get install -t ${DEBIAN_RELEASE} -y --no-install-recommends $RUNTIME_DEPENDENCIES                && \
     apt-get install -t ${DEBIAN_RELEASE} -y --no-install-recommends $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
+    apt-get install -t ${DEBIAN_RELEASE} -y fonts-droid-fallback fonts-wqy-zenhei fonts-wqy-microhei fonts-arphic-ukai fonts-arphic-uming && \
     rm -rf /var/lib/apt/lists/*
 
 # Link FreeRDP plugins into proper path
@@ -159,6 +160,8 @@ RUN ${PREFIX_DIR}/bin/link-freerdp-plugins.sh \
 
 # Checks the operating status every 5 minutes with a timeout of 5 seconds
 HEALTHCHECK --interval=5m --timeout=5s CMD nc -z 127.0.0.1 4822 || exit 1
+
+#RUN echo 'root:123456!' | chpasswd
 
 # Create a new user guacd
 ARG UID=1000
