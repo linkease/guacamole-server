@@ -144,6 +144,7 @@ COPY --from=builder ${PREFIX_DIR} ${PREFIX_DIR}
 RUN apt-get update                                                                                       && \
     apt-get install -t ${DEBIAN_RELEASE} -y --no-install-recommends $RUNTIME_DEPENDENCIES                && \
     apt-get install -t ${DEBIAN_RELEASE} -y --no-install-recommends $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
+    apt-get install -t ${DEBIAN_RELEASE} -y fonts-droid-fallback fonts-wqy-zenhei fonts-wqy-microhei fonts-arphic-ukai fonts-arphic-uming && \
     rm -rf /var/lib/apt/lists/*
 
 # Link FreeRDP plugins into proper path
@@ -163,12 +164,12 @@ RUN useradd --system --create-home --shell /usr/sbin/nologin --uid $UID --gid $G
 USER guacd
 
 # Expose the default listener port
-EXPOSE 4822
+# EXPOSE 4822
 
 # Start guacd, listening on port 0.0.0.0:4822
 #
 # Note the path here MUST correspond to the value specified in the 
 # PREFIX_DIR build argument.
 #
-CMD /usr/local/guacamole/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f
+# CMD /usr/local/guacamole/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f
 
